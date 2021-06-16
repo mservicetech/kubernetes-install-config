@@ -23,7 +23,7 @@ Install Kubernetes
 
 Deploy Kubernetes and set the Kubernetes Cluster
 
-- [Deploy Kubernetes & Kubernates cluster config](k8s-install.md)
+- [Deploy Kubernetes & Kubernates cluster config](k8s-deploy.md)
 
 
 
@@ -38,5 +38,14 @@ To start using your cluster, you need to run the following as a regular user:
   mkdir -p $HOME/.kube
   sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
   sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+```
+
+Use the follow command to verify
+
+```
+kubectl get nodes
+kubectl get ns
+kubectl get po --all-namespaces
 
 ```
