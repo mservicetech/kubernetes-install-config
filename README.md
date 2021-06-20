@@ -49,3 +49,43 @@ kubectl get ns
 kubectl get po --all-namespaces
 
 ```
+
+## Firewall 
+
+enable the firewall and allow ssh and https connection only to the nodes. Also allow the connection between nodes.
+
+On the k8s1
+
+```
+sudo ufw enable
+sudo ufw allow ssh
+sudo ufw allow 443
+sudo ufw allow from {k8s2IP}
+sudo ufw allow from {k8s3IP}
+sudo ufw status
+```
+
+On the k8s2
+
+```
+sudo ufw enable
+sudo ufw allow ssh
+sudo ufw allow 443
+sudo ufw allow from {k8s1IP}
+sudo ufw allow from {k8s3IP}
+sudo ufw status
+
+```
+
+
+On the k8s3
+
+```
+sudo ufw enable
+sudo ufw allow ssh
+sudo ufw allow 443
+sudo ufw allow from {k8s1IP}
+sudo ufw allow from {k8s2IP}
+sudo ufw status
+
+```
