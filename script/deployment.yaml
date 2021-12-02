@@ -1,0 +1,164 @@
+apiVersion: v1
+items:
+- apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    generation: 4
+    labels:
+      app: api
+      application: light4j-petstore
+      light-proxy: http-proxy
+    name: light-petstore
+  spec:
+    progressDeadlineSeconds: 600
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      matchLabels:
+        app: api
+        application: light4j-petstore
+        light-proxy: http-proxy
+    strategy:
+      rollingUpdate:
+        maxSurge: 25%
+        maxUnavailable: 25%
+      type: RollingUpdate
+    template:
+      metadata:
+        creationTimestamp: null
+        labels:
+          app: api
+          application: light4j-petstore
+          light-proxy: http-proxy
+      spec:
+        containers:
+        - env:
+          - name: JVM_OPTS
+            value: -Xms512m -Xmx700m
+          image: networknt/com.networknt.petstore-3.0.1:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: light4j-petstore
+          ports:
+          - containerPort: 9080
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 768Mi
+            requests:
+              cpu: 250m
+              memory: 512Mi
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /config/values.yml
+            name: api-values-volume
+            subPath: values.yml
+          - mountPath: /home/default/log
+            name: api-logs-volume
+            subPath: dev/API-01/light4j-petstore
+        - env:
+          - name: JVM_OPTS
+            value: -Xms512m -Xmx700m
+           - name: LIGHT_ENV
+            value: dev-proxy
+          image: networknt/http-sidecar:latest
+          imagePullPolicy: Always
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: proxy
+          ports:
+          - containerPort: 8080
+            name: http-proxy
+            protocol: TCP
+          - containerPort: 8443
+            name: proxy-https
+            protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources:
+            limits:
+              cpu: 500m
+              memory: 768Mi
+            requests:
+              cpu: 100m
+              memory: 512Mi
+          startupProbe:
+            failureThreshold: 18
+            httpGet:
+              path: /health
+              port: 8080
+              scheme: HTTP
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 5
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          volumeMounts:
+          - mountPath: /home/default/log
+            name: proxy-logs-volume
+            subPath: dev/API-01/proxy
+          - mountPath: /config
+            name: proxy-config-volume
+          - mountPath: /config/openapi.yaml
+            name: proxy-openapi-volume
+            subPath: openapi.yaml
+          - mountPath: /config/values.yml
+            name: proxy-values-volume
+            subPath: values.yml
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 60
+        volumes:
+        - emptyDir: {}
+          name: api-logs-volume
+        - configMap:
+            name: petstore-api-values
+          name: api-values-volume
+        - emptyDir: {}
+          name: proxy-logs-volume
+        - emptyDir: {}
+          name: proxy-config-volume
+        - configMap:
+            name: petstore-proxy-openapi
+          name: proxy-openapi-volume
+        - configMap:
+            name: petstore-proxy-values
+          name: proxy-values-volume
+

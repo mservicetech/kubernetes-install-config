@@ -1,0 +1,12 @@
+
+# must leave an empty line at the top
+server.environment: dev-proxy
+
+
+server.serviceId: com.networknt.petstore-1.0.0
+proxy.containerPort: '9080'
+handler.basePath: '/v1'
+token.enabled: true
+# allow proxy to invoke /health endpoint on backend API for health check.
+health.downstreamEnabled: true
+health.downstreamPath: /health
