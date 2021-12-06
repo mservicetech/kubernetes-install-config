@@ -80,7 +80,7 @@ items:
         - env:
           - name: JVM_OPTS
             value: -Xms512m -Xmx700m
-           - name: LIGHT_ENV
+          - name: LIGHT_ENV
             value: dev-proxy
           image: networknt/http-sidecar:latest
           imagePullPolicy: Always
