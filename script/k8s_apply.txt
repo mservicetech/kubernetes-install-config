@@ -1,0 +1,10 @@
+kubectl create configmap petstore-api-values --from-file=./petstore/values.yml -n dev-api-sidecar
+kubectl create configmap petstore-proxy-values --from-file=./proxy/values.yml -n dev-api-sidecar
+kubectl create configmap petstore-proxy-openapi --from-file=./proxy/openapi.yaml -n dev-api-sidecar
+
+kubectl appy -f deployment.yaml -n dev-api-sidecar
+kubectl appy -f service.yaml -n dev-api-sidecar
+
+curl -k --location --request GET 'https://light-petstore.dev-api-sidecar/health' --header 'Host: localhost' --header 'Content-Type: application/json' --header 'X-Traceability-Id: 111111'
+
+curl -k --location --request GET 'https://light-petstore.dev-api-sidecar/v1/pets' --header 'Host: localhost' --header 'Content-Type: application/json' --header 'X-Traceability-Id: 111111'
