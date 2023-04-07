@@ -27,6 +27,16 @@ Deploy Kubernetes and set the Kubernetes Cluster
 
 
 
+### Renew certs after cert expiration
+
+- [Renew Kubernetes TLS Certificates](certs-renew.md)
+
+
+
+
+
+
+
 ## Use the Kubernetes Cluster
 
 
